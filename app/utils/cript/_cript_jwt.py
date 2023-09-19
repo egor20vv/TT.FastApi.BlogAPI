@@ -11,10 +11,11 @@ DEFAULT_REFRASH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # expire in 7 days
 
 class JWTData(BaseModel):
     sub: str
+    exp: datetime | None
 
 
 def _create_token(data: JWTData, expires_delta: timedelta):
-    to_encode = data.dict().copy()
+    to_encode = data.model_dump().copy()
     
     expire = datetime.utcnow() + (expires_delta if expires_delta 
        else timedelta(minutes=30))
@@ -35,9 +36,9 @@ def create_refrash_token(data: JWTData,
                           )) -> str:
     return _create_token(data, expires_delta)
 
-def encode_token(token: str) -> dict | None:
+def encode_token(token: str) -> JWTData | None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return JWTData.parse_obj(payload)
+        return JWTData.model_validate(payload)
     except (JWTError, ValidationError):
         return None
