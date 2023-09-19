@@ -1,8 +1,10 @@
+from fastapi import FastAPI
+
+from api import (auth_route)
+
+# create app
+app = FastAPI()
+app.include_router(auth_route)
 
 
-def main():
-    print('app\'s startup')
 
-
-if __name__ == '__main__':
-    main()
