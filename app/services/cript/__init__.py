@@ -1,13 +1,14 @@
 # _cript_pass.py
-from services.cript._cript_pass import (
+from ._cript_pass import (
     get_password_hash,
-    verify_password
+    verify_password,
 )
 
 # _cript_jwt.py
-from services.cript._cript_jwt import (
+from ._cript_jwt import (
     create_access_token,
-    create_register_token,
-    encode_token
+    create_refrash_token,
+    encode_token,
+    JWTData
 )
 

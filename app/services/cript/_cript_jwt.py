@@ -29,7 +29,7 @@ def create_access_token(data: JWTData,
                         )) -> str: 
     return _create_token(data, expires_delta)
 
-def create_register_token(data: JWTData,
+def create_refrash_token(data: JWTData,
                           expires_delta: timedelta = timedelta(
                               minutes=DEFAULT_REFRASH_TOKEN_EXPIRE_MINUTES
                           )) -> str:
