@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:5.12.0
+    hostname: neo4j-server
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      # - ./neo4j/neo4j.conf:/conf/neo4j.conf
+      - neo4j_data:/data/
+    environment:
+      - NEO4J_AUTH=neo4j/1234qwer
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+
+volumes:
+  neo4j_data:
