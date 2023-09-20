@@ -4,8 +4,7 @@ from pydantic import BaseModel
 
 class UserEntity(BaseModel):
     guid: uuid4 # primary
-    nickname: str # unique index
-    fullname: str 
-    email: str # unique
+    username: str # unique index
+    email: str # unique index
     password_hash: str
     

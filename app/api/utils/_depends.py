@@ -1,5 +1,4 @@
 from datetime import datetime
-from email.policy import HTTP
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
@@ -27,6 +26,8 @@ async def get_current_user(token: str = Depends(_reuseable_oauth)) -> UserEntity
     
     if tokenData.exp < datetime.utcnow():
         raise _generate_auth_exception('Token exired')
+    
+    # TODO get user from db
     
     return UserEntity(guid=0, 
                       nickname=tokenData.sub, 
