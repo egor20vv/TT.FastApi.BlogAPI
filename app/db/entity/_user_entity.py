@@ -1,14 +1,9 @@
+from uuid import uuid4
 from pydantic import BaseModel
-# from enum import Enum
-
-
-# class UserRoles(Enum):
-#     Simple = 0
-#     Admin = 1
 
 
 class UserEntity(BaseModel):
-    guid: int # primary
+    guid: uuid4 # primary
     nickname: str # unique index
     fullname: str 
     email: str # unique
