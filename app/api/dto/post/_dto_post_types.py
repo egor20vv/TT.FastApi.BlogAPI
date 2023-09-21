@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from pydantic import BaseModel
 
@@ -28,3 +29,5 @@ class ShortRecommendedPostsListView(BaseModel):
     max_normalized_strenght: int
     short_recs: List[ShortRecommendedPostListItem]
     
+class ShortPostOrderdListItemView(ShortPostView):
+    index: datetime | int

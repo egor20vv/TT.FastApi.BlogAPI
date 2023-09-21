@@ -4,4 +4,5 @@ from ._user_db import (
     update_user,
     delete_user,
     is_user,
+    get_user_by_email
 )

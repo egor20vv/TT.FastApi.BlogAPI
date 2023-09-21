@@ -85,10 +85,10 @@ async def update_user(username: str, update: dict) -> UserEntity:
         tx: AsyncTransaction = tx
         result = await tx.run(
             f"""match (p:{UserEntity.__name__}) """
-            f"""where p.username = $username """
+            f"""where p.username = $uname """
             f"""set {set_format(update)} """
             f"""return {return_format(UserEntity.model_fields)}""",
-            update, username=username
+            update, uname=username
         )
         single = await result.single()
         if not single:

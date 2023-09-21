@@ -36,10 +36,10 @@ docker-compose up --build
 + post    /auth/signup
 
 + get     /me # get user info
-- delete  /me # delete user
-- patch   /me # update user info
-- get     /me/post # get my posts
-- post    /me/post # create a post
++ delete  /me # delete user
++ patch   /me # update user info
++ get     /me/post # get my posts
++ post    /me/post # create a post
 - get     /me/post/flwd # get all posts author's you follow
 - get     /me/post/rec # get recommended posts
 - get     /me/post/{id}/likers # get liker's names of your post
