@@ -5,7 +5,7 @@ from neo4j.time import DateTime
 
 
 class UserEntity(BaseModel):
-    guid: uuid4 # primary
+    # guid: uuid4 # primary
     username: str # unique index
     email: str # unique index
     password_hash: str

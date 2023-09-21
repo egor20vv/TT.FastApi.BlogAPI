@@ -1,9 +1,12 @@
 from datetime import datetime
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from pytz import UTC
 
 from utils.cript import encode_token
 from db.entity import UserEntity
+from db.funcs.user import get_user_by_username, is_user
+
 
 _reuseable_oauth = OAuth2PasswordBearer(
     tokenUrl="/auth/login",
@@ -19,19 +22,16 @@ def _generate_auth_exception(detail: str) -> HTTPException:
 
 
 async def get_current_user(token: str = Depends(_reuseable_oauth)) -> UserEntity:
-    tokenData = encode_token(token)
+    token_data = encode_token(token)
     
-    if not tokenData:
+    if not token_data:
         raise _generate_auth_exception('Could not validate credetials')
     
-    if tokenData.exp < datetime.utcnow():
+    if token_data.exp.replace(tzinfo=UTC) < datetime.now(UTC):
         raise _generate_auth_exception('Token exired')
     
-    # TODO get user from db
+    if not await is_user(username=token_data.sub):
+        raise _generate_auth_exception('User not found')
     
-    return UserEntity(guid=0, 
-                      nickname=tokenData.sub, 
-                      fullame=tokenData.sub, 
-                      email='aa', 
-                      password_hash='1')
+    return await get_user_by_username(token_data.sub)
     
