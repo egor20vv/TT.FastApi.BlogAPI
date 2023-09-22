@@ -1,4 +1,5 @@
-from typing import List
+from heapq import merge
+from typing import List, Literal
 from neo4j import AsyncTransaction
 
 from ..._db_init import get_transaction
@@ -98,10 +99,34 @@ async def update_user(username: str, update: dict) -> UserEntity:
 async def delete_user(username: str) -> None:
     async with get_transaction() as tx:
         tx: AsyncTransaction = tx
-        await tx.run(
+        result = await tx.run(
             f"""match (p:{UserEntity.__name__}) """
             f"""where p.username = $username """
             f"""delete p """,
             username=username
         )
+        consume = await result.consume()
+        if not consume.counters.contains_updates:
+            raise ValueError('No changes')
+        
+        
+async def subscribe(by: str, to: str, state: Literal['sub', 'unsub'] = 'sub') -> None:
+    case_state = {
+        'sub': 'merge (by)-[:SUBBED]->(to)',
+        'unsub': 'match (by)-[s:SUBBED]->(to) delete s'
+    }
+    queried_state = case_state[state]
+    async with get_transaction() as tx:
+        tx: AsyncTransaction = tx
+        result = await tx.run(
+            f"""
+            match (by:{UserEntity.__name__}) where by.username = $by
+            match (to:{UserEntity.__name__}) where to.username = $to
+            {queried_state}
+            """,
+            by=by, to=to
+        )
+        consume = await result.consume()
+        if not consume.counters.contains_updates:
+            raise ValueError('No changes')
         

@@ -40,16 +40,16 @@ docker-compose up --build
 + patch   /me # update user info
 + get     /me/post # get my posts
 + post    /me/post # create a post
-- get     /me/post/flwd # get all posts author's you follow
++ get     /me/post/flwd # get all posts author's you follow
 - get     /me/post/rec # get recommended posts
-- get     /me/post/{id}/likers # get liker's names of your post
++ get     /me/post/{id}/likers # get liker's names of your post
 - post    /me/car # post your car
 
-get     /user/{id}/post # get all posts of a user
-get     /user/{id}/post/likers
-put     /user/{id} (sub/unsub) # sub unsub on a user
++ get     /user/{id}/post # get all posts of a user
++ get     /user/{id}/post/likers
++ put     /user/{id} (sub/unsub) # sub unsub on a user
 
-put     /post/{id} (like/unlike) # like unlike post
++ put     /post/{id} (like/unlike) # like unlike post
 put     /post/{id}/comment{id} (like/unlike) # like unlike post's comment
 post    /post/{id}/comment # create a comment under the post
 

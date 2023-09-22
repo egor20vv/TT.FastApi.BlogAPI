@@ -20,13 +20,14 @@ from db.funcs.user import delete_user, update_user, is_user, get_user_by_usernam
 from db.funcs.post import (
     create_post,
     get_user_posts_by_date_ordered,
-    get_user_posts_by_rate_ordered
+    get_user_posts_by_rate_ordered,
+    get_followed_posts_by_date_ordered
 )
 
 from utils.cript import get_password_hash, create_refrash_token, create_access_token, JWTData
 
 
-me_route = APIRouter(prefix='/me', tags=['User', 'Me'])
+me_route = APIRouter(prefix='/me', tags=['Me'])
 
 
 @me_route.get('', summary='Get user info', response_model=FullUserView)
@@ -37,7 +38,11 @@ async def get_me(user: UserEntity = Depends(get_current_user)):
 
 @me_route.delete('', summary='Delete user', response_model=FullUserView)
 async def delete_me(user: UserEntity = Depends(get_current_user)):
-    await delete_user(user.username)
+    try:
+        await delete_user(user.username)
+    except ValueError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST,
+                            detail=', '.join(e.args))
     return FullUserView.model_validate(user)
 
 
@@ -85,42 +90,36 @@ async def patch_credentials_me(patch: PatchUserCredentialsDTO,
     
 @me_route.get('/post', 
               summary='Get my posts', 
-              response_model=list[ShortPostOrderdListItemView])
+            #   response_model=list[ShortPostOrderdListItemView],
+              response_class=RedirectResponse)
 async def get_my_posts(skip: int = 0, 
                        limit: int | None = None, 
                        order: Literal['date', 'desc_date', 'rate', 'desc_rate'] = 'desc_date',
                        user: UserEntity = Depends(get_current_user)):
-    # return RedirectResponse(f'/user/{user.username}/post', )
-    posts = []
-    if order in ['date', 'desc_date']:
-        posts = await get_user_posts_by_date_ordered(
-            user.username, skip, limit, order == 'desc_date'
-        )
-    else:
-        posts = await get_user_posts_by_rate_ordered(
-            user.username, skip, limit, order == 'desc_rate'
-        )
-    res = []
-    for index, post in posts:
-        dumped = post.model_dump()
-        dumped.update(index=index)
-        res.append(ShortPostOrderdListItemView.model_validate(dumped))
-    return res
-    
+    return RedirectResponse(f'/user/{user.username}/post?skip={skip}&order={order}')
+
 
 @me_route.post('/post',
                  summary='Create a post', response_model=FullPostView)
 async def publicate_post(post_data: PublicatePostDTO,
                          user: UserEntity = Depends(get_current_user)):
     post_entity = PostEntity.model_validate(post_data.model_dump())
-    returned_entity = await create_post(user.username, post_entity)
-    return FullPostView.model_validate(returned_entity.model_dump())
+    id, returned_entity = await create_post(user.username, post_entity)
+    return FullPostView.model_validate({
+        **returned_entity.model_dump(), 
+        'id': id, 'creator': user.username
+        })
+
 
 @me_route.get('/post/followed',
                 summary='Get all posts author\'s you follow', 
                 response_model=List[ShortPostView])
-async def get_posts_followed(skip: int = 0, limit: int = 10):
-    pass
+async def get_posts_followed(skip: int = 0, limit: int = 10, desc: bool = False,
+                             user: UserEntity = Depends(get_current_user)):
+    posts = await get_followed_posts_by_date_ordered(user.username, skip, limit, desc)
+    return [ShortPostView.model_validate({**ps.model_dump(), 'id': id, 'creator': who}) 
+            for at, id, who, ps in posts]
+
 
 @me_route.get('/post/rec',
                 summary='Get recommended posts',
@@ -128,11 +127,6 @@ async def get_posts_followed(skip: int = 0, limit: int = 10):
 async def get_recommended_posts(skip: int = 0, limit: int = 10):
     pass
 
-@me_route.get('/post/{post_id}/likers',
-                summary='Get usernames who like your post',
-                response_class=RedirectResponse)
-async def get_post_names_of_likers(skip: int = 0, limit: int = 10):
-    pass
 
 @me_route.post('/car', summary='Publicate your new car', response_model=CarView)
 async def publicate_car(car_data: PublicateCarDTO):

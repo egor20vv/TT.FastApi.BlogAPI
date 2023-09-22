@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 
-from api import (auth_route, me_route)
+from api import (
+    auth_route, 
+    me_route, 
+    user_route,
+    post_route
+)
 from db import init_db, DbInitData
 from utils.config import Configs 
 
@@ -17,6 +22,5 @@ init_db(DbInitData(
 app = FastAPI()
 app.include_router(auth_route)
 app.include_router(me_route)
-
-
-
+app.include_router(user_route)
+app.include_router(post_route)

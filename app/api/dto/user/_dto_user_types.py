@@ -2,6 +2,11 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class ShortUserView(BaseModel):
+    username: str
+    fullname: str | None = None
+    photo: str | None = None
+
 class FullUserView(BaseModel):
     username: str
     email: str

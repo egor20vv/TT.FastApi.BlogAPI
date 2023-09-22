@@ -10,15 +10,21 @@ class PublicatePostDTO(BaseModel):
     
     
 class FullPostView(BaseModel):
+    id: str
+    creator: str
     title: str
     body: str
     preview_img: str | None = None
     
 class ShortPostView(BaseModel):
+    id: str
+    creator: str
     title: str
     preview_img: str | None = None
     
 class ShortRecommendedPostListItem(BaseModel):
+    id: int
+    creator: str
     title: str
     strenght: int
     normalized_strenght: int
@@ -31,3 +37,12 @@ class ShortRecommendedPostsListView(BaseModel):
     
 class ShortPostOrderdListItemView(ShortPostView):
     index: datetime | int
+    
+    
+class PostCommentView(BaseModel):
+    id: str
+    publicated: datetime
+    by: str
+    post: str
+    message: str
+    likes: int
