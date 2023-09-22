@@ -22,6 +22,11 @@ def _generate_auth_exception(detail: str) -> HTTPException:
 
 
 async def get_current_user(token: str = Depends(_reuseable_oauth)) -> UserEntity:
+    sub = await get_subject(token)
+    return await get_user_by_username(sub)
+
+
+async def get_subject(token: str) -> str:
     token_data = encode_token(token)
     
     if not token_data:
@@ -33,5 +38,7 @@ async def get_current_user(token: str = Depends(_reuseable_oauth)) -> UserEntity
     if not await is_user(username=token_data.sub):
         raise _generate_auth_exception('User not found')
     
-    return await get_user_by_username(token_data.sub)
+    # TODO block old access and refresh tokens
     
+    return token_data.sub
+        

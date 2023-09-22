@@ -1,7 +1,9 @@
 from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
+from .utils._depends import get_subject
 from .dto.auth import TokenDataView, RegisterUserDTO
+
 from utils.cript import (
     create_access_token, 
     create_refrash_token, 
@@ -9,8 +11,10 @@ from utils.cript import (
     verify_password,
     get_password_hash
 )
+
 from db.funcs.user import get_user_by_username, is_user, create_user
 from db.entity import UserEntity
+
 
 auth_route = APIRouter(prefix='/auth', tags=['Auth'])
 
@@ -20,6 +24,13 @@ def generate_tokens(username: str) -> TokenDataView:
     return TokenDataView(username=username, 
                          access_token=create_access_token(data),
                          refrash_token=create_refrash_token(data))
+
+
+@auth_route.post('/refresh',
+                 summary='Refresh access token',
+                 response_model=TokenDataView)
+async def refresh(sub: str = Depends(get_subject)):
+    return generate_tokens(sub)
 
 
 @auth_route.post('/login', 
